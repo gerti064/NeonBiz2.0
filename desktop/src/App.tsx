@@ -1,6 +1,6 @@
 import React from "react";
-import POSPage from "./pos/POSPage";
+import POSApp from "./pos/AppPOS";
 
 export default function App() {
-  return <POSPage />;
+  return <POSApp />;
 }
