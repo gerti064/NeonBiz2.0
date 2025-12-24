@@ -1,0 +1,88 @@
+import { useEffect, useRef, useState } from "react";
+
+type Msg = { role: "user" | "assistant"; text: string };
+
+export default function AIChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [msgs, setMsgs] = useState<Msg[]>([
+    { role: "assistant", text: "Hi. Ask me about products, orders, or today’s totals." },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    requestAnimationFrame(() => {
+      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+    });
+  }, [open, msgs.length]);
+
+  async function send() {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    setMsgs((m) => [...m, { role: "user", text }]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      // DEMO response for now (next step: wire to real AI endpoint)
+      const reply =
+        text.toLowerCase().includes("help")
+          ? "Try: 'How many orders today?', 'Total revenue?', 'List coffee products'."
+          : "Demo AI is enabled. Next step: connect me to your backend AI endpoint.";
+
+      setMsgs((m) => [...m, { role: "assistant", text: reply }]);
+    } catch {
+      setMsgs((m) => [...m, { role: "assistant", text: "Failed to respond." }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="aiWrap">
+      {open && (
+        <div className="aiPanel" role="dialog" aria-label="AI Assistant">
+          <div className="aiHeader">
+            <div>
+              <div className="aiTitle">AI Assistant</div>
+              <div className="aiSub">POS helper</div>
+            </div>
+            <button className="aiIconBtn" onClick={() => setOpen(false)} aria-label="Close">
+              ✕
+            </button>
+          </div>
+
+          <div className="aiList" ref={listRef}>
+            {msgs.map((m, idx) => (
+              <div key={idx} className={`aiMsg ${m.role === "user" ? "aiUser" : "aiBot"}`}>
+                {m.text}
+              </div>
+            ))}
+            {loading && <div className="aiMsg aiBot">Typing…</div>}
+          </div>
+
+          <div className="aiInputRow">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask something…"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") send();
+              }}
+            />
+            <button className="aiSendBtn" onClick={send} disabled={loading}>
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+
+      <button className="aiFab" onClick={() => setOpen((v) => !v)} aria-label="Open AI chat">
+        {open ? "—" : "AI"}
+      </button>
+    </div>
+  );
+}

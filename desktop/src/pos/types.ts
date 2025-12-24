@@ -1,17 +1,29 @@
-export type OrderItem = {
-  productId: string;
+export type CategoryKey = "coffee" | "tea" | "snack";
+
+export type Product = {
+  id: string;
   name: string;
-  qty: number;
-  unitPrice: number;
+  category: CategoryKey;
+  price: number;
+  available: boolean;
+  imageUrl?: string;
 };
 
-export type Order = {
-  id: string;
-  createdAt: string;
+export type CartItem = {
+  productId: string;
+  name: string;
+  price: number;
+  qty: number;
+};
+
+export type CreateOrderPayload = {
   customerName: string;
-  paymentMethod: "cash" | "card";
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  total: number;
+  items: {
+    productId: string;
+    qty: number;
+    unitPrice: number;
+    name: string;
+  }[];
+  note?: string;
+  paymentMethod?: "cash" | "card";
 };
