@@ -1,0 +1,186 @@
+/* category pills */
+.tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.tab{
+  flex:1;
+  min-width: 240px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  border-radius:18px;
+  padding:12px;
+  box-shadow:var(--shadow2);
+  cursor:pointer;
+  user-select:none;
+}
+.tab:hover{ border-color:#dbe3db; }
+.tabActive{
+  border-color: rgba(31,122,74,.35);
+  background:linear-gradient(180deg, rgba(31,122,74,.10), rgba(255,255,255,.92));
+}
+.tabIcon{
+  width:44px; height:44px;
+  border-radius:16px;
+  border:1px solid rgba(31,122,74,.22);
+  background:rgba(31,122,74,.07);
+  display:grid;
+  place-items:center;
+  font-size:18px;
+}
+.tabCol{ flex:1; }
+.tabLabel{ font-weight:900; }
+.tabSub{ color:var(--muted); font-size:12px; margin-top:2px; }
+.tabBadges{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+
+.badgeOk, .badgeBad{
+  font-size:11px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid;
+  white-space:nowrap;
+}
+.badgeOk{
+  color:var(--green);
+  background:rgba(31,122,74,.08);
+  border-color:rgba(31,122,74,.20);
+}
+.badgeBad{
+  color:var(--danger);
+  background:rgba(214,75,75,.08);
+  border-color:rgba(214,75,75,.20);
+}
+
+/* grid header */
+.gridHeader{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  padding:2px 4px;
+}
+.gridTitle{ margin:0; font-size:18px; font-weight:900; }
+.gridHint{ color:var(--muted); font-size:12px; }
+
+/* product grid */
+.productGrid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:12px;
+}
+
+@media (max-width: 1200px){
+  .productGrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 780px){
+  .productGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.productCard{
+  position:relative;
+  border:1px solid var(--border);
+  background:var(--panel);
+  border-radius:18px;
+  padding:12px;
+  box-shadow:var(--shadow2);
+  overflow:hidden;
+  min-height:170px;
+}
+.productDisabled{ opacity:.55; }
+
+.productTop{ display:flex; justify-content:flex-start; }
+.chip{
+  font-size:11px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid;
+}
+.chipOk{
+  color:var(--green);
+  background:rgba(31,122,74,.08);
+  border-color:rgba(31,122,74,.20);
+}
+.chipBad{
+  color:var(--danger);
+  background:rgba(214,75,75,.08);
+  border-color:rgba(214,75,75,.20);
+}
+
+.productImg{
+  margin-top:10px;
+  height:86px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(31,122,74,.08), rgba(0,0,0,.03));
+  border:1px solid rgba(31,122,74,.10);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.productImg img{ width:100%; height:100%; object-fit:cover; display:block; }
+.imgFallback{ font-weight:900; color:var(--green); font-size:22px; }
+
+.productInfo{
+  margin-top:10px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+}
+.productName{ font-weight:900; font-size:13px; }
+.productPrice{ color:var(--muted); font-size:12px; }
+
+.addBtn{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  width:36px;
+  height:36px;
+  border-radius:14px;
+  border:1px solid rgba(31,122,74,.25);
+  background:linear-gradient(180deg, rgba(31,122,74,.14), rgba(255,255,255,.92));
+  box-shadow:var(--shadow2);
+  cursor:pointer;
+  font-size:20px;
+  font-weight:900;
+  color:var(--green);
+}
+.addBtn:disabled{ cursor:not-allowed; opacity:.5; }
+.addBtn:active{ transform: translateY(1px); }
+
+/* legacy search (safe to keep) */
+.searchRow{ display:flex; align-items:center; gap:12px; }
+.search{ flex:1; position:relative; }
+.search input{
+  width:100%;
+  height:46px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  padding:0 44px 0 44px;
+  outline:none;
+  box-shadow:var(--shadow2);
+}
+.search input:focus{
+  border-color: rgba(31,122,74,.35);
+  box-shadow:0 0 0 4px rgba(31,122,74,.10), var(--shadow2);
+}
+.searchIcon{
+  position:absolute; left:14px; top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:14px;
+}
+.clearBtn{
+  position:absolute; right:10px; top:50%;
+  transform:translateY(-50%);
+  width:28px; height:28px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  cursor:pointer;
+  color:var(--muted);
+}
+.clearBtn:hover{ border-color:#dbe3db; }

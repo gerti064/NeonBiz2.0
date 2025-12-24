@@ -1,0 +1,125 @@
+.aiWrap{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:9999;
+}
+
+.aiFab{
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  border:1px solid rgba(31,122,74,.25);
+  background:linear-gradient(180deg, rgba(31,122,74,.18), rgba(255,255,255,.92));
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  font-weight:900;
+  color:var(--green);
+}
+
+.aiPanel{
+  width:360px;
+  height:460px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  margin-bottom:12px;
+  display:flex;
+  flex-direction:column;
+}
+
+.aiHeader{
+  padding:12px 12px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  background:rgba(246,247,245,.92);
+  backdrop-filter: blur(10px);
+}
+
+.aiTitle{ font-weight:900; }
+.aiSub{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+.aiIconBtn{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  box-shadow:var(--shadow2);
+  cursor:pointer;
+}
+
+.aiList{
+  flex:1;
+  padding:12px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:linear-gradient(180deg, rgba(0,0,0,.01), rgba(0,0,0,.00));
+}
+
+.aiMsg{
+  max-width:85%;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.35;
+  border:1px solid var(--border);
+  background:var(--panel);
+}
+
+.aiBot{
+  align-self:flex-start;
+  border-color: rgba(31,122,74,.18);
+  background:rgba(31,122,74,.06);
+}
+
+.aiUser{
+  align-self:flex-end;
+  border-color: rgba(0,0,0,.08);
+  background:rgba(0,0,0,.03);
+}
+
+.aiInputRow{
+  padding:10px;
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:10px;
+  background:var(--panel);
+}
+
+.aiInputRow input{
+  flex:1;
+  height:40px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:0 12px;
+  outline:none;
+}
+
+.aiInputRow input:focus{
+  border-color: rgba(31,122,74,.35);
+  box-shadow:0 0 0 4px rgba(31,122,74,.10);
+}
+
+.aiSendBtn{
+  height:40px;
+  padding:0 14px;
+  border-radius:14px;
+  border:1px solid rgba(31,122,74,.25);
+  background:linear-gradient(180deg, rgba(31,122,74,.18), rgba(31,122,74,.08));
+  color:var(--green);
+  font-weight:900;
+  cursor:pointer;
+}
+
+.aiSendBtn:disabled{ opacity:.6; cursor:not-allowed; }
+
+@media (max-width: 520px){
+  .aiPanel{ width: calc(100vw - 36px); height: 420px; }
+}
