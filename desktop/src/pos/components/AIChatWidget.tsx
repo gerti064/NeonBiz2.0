@@ -14,7 +14,10 @@ export default function AIChatWidget() {
   useEffect(() => {
     if (!open) return;
     requestAnimationFrame(() => {
-      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+      listRef.current?.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     });
   }, [open, msgs.length]);
 
@@ -27,11 +30,18 @@ export default function AIChatWidget() {
     setLoading(true);
 
     try {
-      // DEMO response for now (next step: wire to real AI endpoint)
+      const r = await fetch("/api/ai/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text }),
+      });
+
+      const data = await r.json();
+
       const reply =
-        text.toLowerCase().includes("help")
-          ? "Try: 'How many orders today?', 'Total revenue?', 'List coffee products'."
-          : "Demo AI is enabled. Next step: connect me to your backend AI endpoint.";
+        (data && typeof data.answer === "string" && data.answer.trim()) ||
+        (data && typeof data.error === "string" && data.error.trim()) ||
+        "No response.";
 
       setMsgs((m) => [...m, { role: "assistant", text: reply }]);
     } catch {
@@ -50,7 +60,12 @@ export default function AIChatWidget() {
               <div className="aiTitle">AI Assistant</div>
               <div className="aiSub">POS helper</div>
             </div>
-            <button className="aiIconBtn" onClick={() => setOpen(false)} aria-label="Close">
+            <button
+              className="aiIconBtn"
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              type="button"
+            >
               ✕
             </button>
           </div>
@@ -72,15 +87,21 @@ export default function AIChatWidget() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") send();
               }}
+              disabled={loading}
             />
-            <button className="aiSendBtn" onClick={send} disabled={loading}>
+            <button className="aiSendBtn" onClick={send} disabled={loading} type="button">
               Send
             </button>
           </div>
         </div>
       )}
 
-      <button className="aiFab" onClick={() => setOpen((v) => !v)} aria-label="Open AI chat">
+      <button
+        className="aiFab"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Open AI chat"
+        type="button"
+      >
         {open ? "—" : "AI"}
       </button>
     </div>
