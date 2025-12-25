@@ -1,7 +1,7 @@
 import type { Product } from "../types";
 import { formatMoney } from "../utils";
 
-const CURRENCY = "$";
+const CURRENCY = "€";
 
 export default function ProductGrid({
   products,
@@ -12,32 +12,41 @@ export default function ProductGrid({
   loading: boolean;
   onAdd: (p: Product) => void;
 }) {
-  if (loading) return <div className="posBlock">Loading...</div>;
+  if (loading) return <div>Loading…</div>;
 
   return (
-    <div className="productGrid">
+    <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
       {products.map((p) => (
-        <div
+        <button
           key={p.id}
-          className={`productCard ${!p.available ? "productDisabled" : ""}`}
+          onClick={() => onAdd(p)}
+          disabled={!p.available}
+          className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition text-left"
         >
-          <div className={`chip ${p.available ? "chipOk" : "chipBad"}`}>
-            {p.available ? "Available" : "Need to stock"}
+          {/* IMAGE */}
+          <div className="h-32 bg-stone-200">
+            {p.imageUrl && (
+              <img
+                src={p.imageUrl}
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
 
-          <div className="productImg">
-            {p.imageUrl ? <img src={p.imageUrl} /> : <div className="imgFallback">{p.name[0]?.toUpperCase()}</div>}
-          </div>
+          {/* INFO */}
+          <div className="p-3">
+            <div className="font-semibold text-sm truncate">
+              {p.name}
+            </div>
+            <div className="text-xs text-stone-500">
+              Freshly prepared
+            </div>
 
-          <div className="productInfo">
-            <div className="productName">{p.name}</div>
-            <div className="productPrice">{formatMoney(p.price, CURRENCY)}</div>
+            <div className="mt-2 font-bold text-emerald-600">
+              {formatMoney(p.price, CURRENCY)}
+            </div>
           </div>
-
-          <button className="addBtn" onClick={() => onAdd(p)} disabled={!p.available}>
-            +
-          </button>
-        </div>
+        </button>
       ))}
     </div>
   );

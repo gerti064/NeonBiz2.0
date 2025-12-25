@@ -1,19 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
 import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
 import StatsPage from "./pages/StatsPage";
+import Navbar from "./components/Navbar";
 import { POSProvider } from "./context/POSContext";
 import AIChatWidget from "./components/AIChatWidget";
 
-export default function POSApp() {
+export default function AppPOS() {
   return (
     <POSProvider>
       <BrowserRouter>
-        <div className="posShell">
+        {/* FULL APP SHELL */}
+        <div className="h-screen flex flex-col bg-stone-100 text-stone-900">
+          {/* TOP BAR */}
           <Navbar />
 
-          <div className="posContent">
+          {/* MAIN CONTENT (everything under navbar) */}
+          <div className="flex-1 overflow-hidden">
             <Routes>
               <Route path="/" element={<Navigate to="/products" replace />} />
               <Route path="/products" element={<ProductsPage />} />
@@ -22,7 +25,7 @@ export default function POSApp() {
             </Routes>
           </div>
 
-          {/* ✅ Appears on every screen */}
+          {/* FLOATING ASSISTANT */}
           <AIChatWidget />
         </div>
       </BrowserRouter>

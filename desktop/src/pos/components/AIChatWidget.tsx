@@ -6,7 +6,10 @@ export default function AIChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "assistant", text: "Hi. Ask me about products, orders, or today’s totals." },
+    {
+      role: "assistant",
+      text: "Hi. Ask me about products, orders, or today’s totals.",
+    },
   ]);
   const [loading, setLoading] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -45,20 +48,29 @@ export default function AIChatWidget() {
 
       setMsgs((m) => [...m, { role: "assistant", text: reply }]);
     } catch {
-      setMsgs((m) => [...m, { role: "assistant", text: "Failed to respond." }]);
+      setMsgs((m) => [
+        ...m,
+        { role: "assistant", text: "Failed to respond." },
+      ]);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="aiWrap">
+    <>
+      {/* CHAT PANEL */}
       {open && (
-        <div className="aiPanel" role="dialog" aria-label="AI Assistant">
-          <div className="aiHeader">
+        <div
+          role="dialog"
+          aria-label="AI Assistant"
+          className="fixed bottom-24 right-6 w-80 h-[420px] bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col z-50"
+        >
+          {/* HEADER */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
             <div>
-              <div className="aiTitle">AI Assistant</div>
-              <div className="aiSub">POS helper</div>
+              <div className="text-sm font-semibold">AI Assistant</div>
+              <div className="text-xs text-gray-500">POS helper</div>
             </div>
             <button
               className="aiIconBtn"
@@ -70,16 +82,35 @@ export default function AIChatWidget() {
             </button>
           </div>
 
-          <div className="aiList" ref={listRef}>
+          {/* MESSAGES */}
+          <div
+            ref={listRef}
+            className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50"
+          >
             {msgs.map((m, idx) => (
-              <div key={idx} className={`aiMsg ${m.role === "user" ? "aiUser" : "aiBot"}`}>
+              <div
+                key={idx}
+                className={`
+                  max-w-[85%] px-3 py-2 rounded-xl text-sm
+                  ${
+                    m.role === "user"
+                      ? "ml-auto bg-gray-900 text-white"
+                      : "bg-white border border-gray-200 text-gray-900"
+                  }
+                `}
+              >
                 {m.text}
               </div>
             ))}
-            {loading && <div className="aiMsg aiBot">Typing…</div>}
+            {loading && (
+              <div className="bg-white border border-gray-200 text-gray-500 text-sm px-3 py-2 rounded-xl w-fit">
+                Typing…
+              </div>
+            )}
           </div>
 
-          <div className="aiInputRow">
+          {/* INPUT */}
+          <div className="p-3 border-t border-gray-200 flex gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -104,6 +135,6 @@ export default function AIChatWidget() {
       >
         {open ? "—" : "AI"}
       </button>
-    </div>
+    </>
   );
 }
