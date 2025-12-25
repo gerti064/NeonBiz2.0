@@ -20,27 +20,52 @@ export default function StatsPage() {
   }, [orders, ordersCountToday]);
 
   return (
-    <div className="statsWrap">
-      <div className="pageTitle">Statistics</div>
-      <div className="pageSub">Demo stats for now (based on locally created orders)</div>
+    <div className="min-h-screen bg-gray-100 text-gray-900 p-8">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold">Statistics</h1>
+        <p className="text-sm text-gray-500">
+          Demo stats for now (based on locally created orders)
+        </p>
+      </div>
 
-      <div className="statsGrid">
-        <div className="statCard">
-          <div className="statLabel">Total revenue</div>
-          <div className="statValue">{formatMoney(stats.totalRevenue, CURRENCY)}</div>
-        </div>
-        <div className="statCard">
-          <div className="statLabel">Total orders</div>
-          <div className="statValue">{stats.totalOrders}</div>
-        </div>
-        <div className="statCard">
-          <div className="statLabel">Today (backend count)</div>
-          <div className="statValue">{stats.ordersCountToday}</div>
-        </div>
-        <div className="statCard">
-          <div className="statLabel">Avg order</div>
-          <div className="statValue">{formatMoney(stats.avgOrder, CURRENCY)}</div>
-        </div>
+      {/* STATS GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <StatCard
+          label="Total revenue"
+          value={formatMoney(stats.totalRevenue, CURRENCY)}
+        />
+        <StatCard
+          label="Total orders"
+          value={stats.totalOrders.toString()}
+        />
+        <StatCard
+          label="Today (backend count)"
+          value={stats.ordersCountToday.toString()}
+        />
+        <StatCard
+          label="Avg order"
+          value={formatMoney(stats.avgOrder, CURRENCY)}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* --------- Small reusable card --------- */
+
+function StatCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div className="text-sm text-gray-500 mb-1">{label}</div>
+      <div className="text-2xl font-semibold text-gray-900">
+        {value}
       </div>
     </div>
   );
