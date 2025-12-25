@@ -22,12 +22,18 @@ a:hover {
   color: #535bf2;
 }
 
+/* ❗ FIXED: DO NOT CENTER THE ENTIRE APP */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+
+  /* ❌ removed */
+  /* display: flex; */
+  /* place-items: center; */
+
+  /* ✅ correct */
+  display: block;
 }
 
 h1 {
