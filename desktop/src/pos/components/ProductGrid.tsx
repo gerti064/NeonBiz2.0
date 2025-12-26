@@ -1,53 +1,121 @@
-import type { Product } from "../types";
+import React from "react";
 import { formatMoney } from "../utils";
 
 const CURRENCY = "€";
+
+type ProductLike = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  imageUrl?: string;
+  available?: boolean;
+  description?: string;
+};
 
 export default function ProductGrid({
   products,
   loading,
   onAdd,
 }: {
-  products: Product[];
+  products: ProductLike[];
   loading: boolean;
-  onAdd: (p: Product) => void;
+  onAdd: (productId: string) => void;
 }) {
-  if (loading) return <div>Loading…</div>;
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-3xl border border-stone-200 overflow-hidden animate-pulse"
+          >
+            <div className="h-36 bg-stone-200" />
+            <div className="p-4 space-y-2">
+              <div className="h-4 w-2/3 bg-stone-200 rounded" />
+              <div className="h-3 w-1/2 bg-stone-200 rounded" />
+              <div className="h-5 w-1/3 bg-stone-200 rounded mt-3" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <div className="h-full flex items-center justify-center text-stone-500">
+        No products found
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
-      {products.map((p) => (
-        <button
-          key={p.id}
-          onClick={() => onAdd(p)}
-          disabled={!p.available}
-          className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition text-left"
-        >
-          {/* IMAGE */}
-          <div className="h-32 bg-stone-200">
-            {p.imageUrl && (
-              <img
-                src={p.imageUrl}
-                className="h-full w-full object-cover"
-              />
-            )}
-          </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {products.map((p) => {
+        const disabled = p.available === false;
 
-          {/* INFO */}
-          <div className="p-3">
-            <div className="font-semibold text-sm truncate">
-              {p.name}
-            </div>
-            <div className="text-xs text-stone-500">
-              Freshly prepared
+        return (
+          <div
+            key={p.id}
+            className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm hover:shadow transition relative"
+          >
+            {/* Image */}
+            <div className="h-36 bg-stone-100 overflow-hidden">
+              {p.imageUrl ? (
+                <img
+                  src={p.imageUrl}
+                  alt={p.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-stone-400">
+                  No image
+                </div>
+              )}
             </div>
 
-            <div className="mt-2 font-bold text-emerald-600">
-              {formatMoney(p.price, CURRENCY)}
+            {/* Content */}
+            <div className="p-4">
+              <div className="font-semibold text-stone-900 truncate">
+                {p.name}
+              </div>
+              <div className="text-xs text-stone-500">
+                {(p.description ?? "Freshly prepared").toString()}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between">
+                <div className="font-extrabold text-emerald-700">
+                  {formatMoney(p.price, CURRENCY)}
+                </div>
+
+                {/* Plus button */}
+                <button
+                  onClick={() => !disabled && onAdd(p.id)}
+                  disabled={disabled}
+                  className={[
+                    "w-11 h-11 rounded-full flex items-center justify-center font-black text-lg transition",
+                    disabled
+                      ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                      : "bg-emerald-700 text-white hover:bg-emerald-800",
+                  ].join(" ")}
+                  aria-label={`Add ${p.name}`}
+                  title={disabled ? "Not available" : "Add"}
+                >
+                  +
+                </button>
+              </div>
+
+              {disabled && (
+                <div className="mt-3 text-xs font-semibold text-rose-600">
+                  Need to restock
+                </div>
+              )}
             </div>
           </div>
-        </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
