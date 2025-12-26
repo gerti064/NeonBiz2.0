@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 type Msg = { role: "user" | "assistant"; text: string };
 
+// ✅ Droplet IP (no domain needed)
+const API_BASE = "http://138.197.183.95:4000";
+
 export default function AIChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -33,24 +36,27 @@ export default function AIChatWidget() {
     setLoading(true);
 
     try {
-      const r = await fetch("/api/ai/ask", {
+      const r = await fetch(`${API_BASE}/api/ai/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: text }),
       });
 
-      const data = await r.json();
+      const data = await r.json().catch(() => ({}));
 
       const reply =
         (data && typeof data.answer === "string" && data.answer.trim()) ||
         (data && typeof data.error === "string" && data.error.trim()) ||
-        "No response.";
+        (r.ok ? "No response." : `Request failed (${r.status}).`);
 
       setMsgs((m) => [...m, { role: "assistant", text: reply }]);
-    } catch {
+    } catch (err: any) {
       setMsgs((m) => [
         ...m,
-        { role: "assistant", text: "Failed to respond." },
+        {
+          role: "assistant",
+          text: `Failed to respond: ${err?.message ?? "Network error"}`,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -59,14 +65,12 @@ export default function AIChatWidget() {
 
   return (
     <>
-      {/* CHAT PANEL */}
       {open && (
         <div
           role="dialog"
           aria-label="AI Assistant"
           className="fixed bottom-24 right-6 w-80 h-[420px] bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col z-50"
         >
-          {/* HEADER */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
             <div>
               <div className="text-sm font-semibold">AI Assistant</div>
@@ -82,7 +86,6 @@ export default function AIChatWidget() {
             </button>
           </div>
 
-          {/* MESSAGES */}
           <div
             ref={listRef}
             className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50"
@@ -109,7 +112,6 @@ export default function AIChatWidget() {
             )}
           </div>
 
-          {/* INPUT */}
           <div className="p-3 border-t border-gray-200 flex gap-2">
             <input
               value={input}
@@ -120,7 +122,12 @@ export default function AIChatWidget() {
               }}
               disabled={loading}
             />
-            <button className="aiSendBtn" onClick={send} disabled={loading} type="button">
+            <button
+              className="aiSendBtn"
+              onClick={send}
+              disabled={loading}
+              type="button"
+            >
               Send
             </button>
           </div>
