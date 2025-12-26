@@ -1,7 +1,17 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { CartItem, CategoryKey, Product } from "../types";
 import { calcSubtotal, calcTax } from "../utils";
-import { getProducts, getOrdersCountToday, createOrder as apiCreateOrder } from "../api";
+import {
+  getProducts,
+  getOrdersCountToday,
+  createOrder as apiCreateOrder,
+} from "../api";
 
 const TAX_RATE = 0.0;
 
@@ -77,7 +87,10 @@ type POSContextType = {
   tabsSidebarOpen: boolean;
   setTabsSidebarOpen: (v: boolean) => void;
 
-  checkoutTab: (tabId: string, paymentMethod?: "cash" | "card") => Promise<void>;
+  checkoutTab: (
+    tabId: string,
+    paymentMethod?: "cash" | "card"
+  ) => Promise<void>;
   cancelTab: (tabId: string) => void;
 
   toast: string | null;
@@ -124,7 +137,17 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
           getProducts(),
           getOrdersCountToday(),
         ]);
-        setProducts(p);
+
+        // ✅ NORMALIZE BACKEND DATA HERE
+        const normalized: Product[] = p.map((prod: any) => ({
+          ...prod,
+          category: prod.category?.toLowerCase() as CategoryKey, // "Snack" → "snack"
+          price: Number(prod.price), // "1.60" → 1.6
+          available:
+            prod.available !== undefined ? prod.available : true,
+        }));
+
+        setProducts(normalized);
         setOrdersCountToday(count);
       } catch (err) {
         console.error(err);
@@ -162,20 +185,27 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + 1 };
         return copy;
       }
-      return [...prev, { productId: p.id, name: p.name, price: p.price, qty: 1 }];
+      return [
+        ...prev,
+        { productId: p.id, name: p.name, price: p.price, qty: 1 },
+      ];
     });
   }
 
   function inc(id: string) {
     setCart((prev) =>
-      prev.map((i) => (i.productId === id ? { ...i, qty: i.qty + 1 } : i))
+      prev.map((i) =>
+        i.productId === id ? { ...i, qty: i.qty + 1 } : i
+      )
     );
   }
 
   function dec(id: string) {
     setCart((prev) =>
       prev
-        .map((i) => (i.productId === id ? { ...i, qty: i.qty - 1 } : i))
+        .map((i) =>
+          i.productId === id ? { ...i, qty: i.qty - 1 } : i
+        )
         .filter((i) => i.qty > 0)
     );
   }
@@ -190,7 +220,9 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
 
   /* ---------------- PAY NOW ---------------- */
 
-  async function createNewOrder(paymentMethod: "cash" | "card" = "cash") {
+  async function createNewOrder(
+    paymentMethod: "cash" | "card" = "cash"
+  ) {
     if (!cart.length) {
       setToast("Cart is empty");
       return;
@@ -238,7 +270,10 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
 
   /* ---------------- PAY LATER (TABS) ---------------- */
 
-  async function checkoutTab(tabId: string, paymentMethod: "cash" | "card" = "cash") {
+  async function checkoutTab(
+    tabId: string,
+    paymentMethod: "cash" | "card" = "cash"
+  ) {
     const t = tabsPayLater.find((x) => x.id === tabId);
     if (!t || t.status !== "open") return;
 
@@ -267,7 +302,9 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
       setOrdersCountToday((c) => c + 1);
 
       setTabsPayLater((prev) =>
-        prev.map((x) => (x.id === tabId ? { ...x, status: "paid" } : x))
+        prev.map((x) =>
+          x.id === tabId ? { ...x, status: "paid" } : x
+        )
       );
 
       setToast("Tab paid");
@@ -280,12 +317,16 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
 
   function cancelTab(tabId: string) {
     setTabsPayLater((prev) =>
-      prev.map((t) => (t.id === tabId ? { ...t, status: "cancelled" } : t))
+      prev.map((t) =>
+        t.id === tabId ? { ...t, status: "cancelled" } : t
+      )
     );
     setToast("Tab cancelled");
   }
 
-  async function completeCart(paymentMethod: "cash" | "card" = "cash") {
+  async function completeCart(
+    paymentMethod: "cash" | "card" = "cash"
+  ) {
     if (checkoutMode === "tab") return;
     await createNewOrder(paymentMethod);
   }
@@ -336,13 +377,18 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
     setToast,
   };
 
-  return <POSContext.Provider value={value}>{children}</POSContext.Provider>;
+  return (
+    <POSContext.Provider value={value}>
+      {children}
+    </POSContext.Provider>
+  );
 }
 
 /* ---------------- HOOK ---------------- */
 
 export function usePOS() {
   const ctx = useContext(POSContext);
-  if (!ctx) throw new Error("usePOS must be used inside POSProvider");
+  if (!ctx)
+    throw new Error("usePOS must be used inside POSProvider");
   return ctx;
 }

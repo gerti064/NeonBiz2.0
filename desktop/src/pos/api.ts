@@ -5,7 +5,7 @@ const API_BASE =
   (import.meta as any)?.env?.VITE_API_BASE_URL || "http://localhost:4000/api";
 
 const USE_MOCK =
-  ((import.meta as any)?.env?.VITE_USE_MOCK ?? "true").toString() === "true";
+  ((import.meta as any)?.env?.VITE_USE_MOCK ?? "false").toString() === "true";
 
 async function jfetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -27,13 +27,20 @@ async function jfetch<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  if (USE_MOCK) return MOCK_PRODUCTS;
+  if (USE_MOCK) {
+    console.warn("⚠️ USING MOCK PRODUCTS");
+    return MOCK_PRODUCTS;
+  }
 
   const data = await jfetch<any>("/products");
+
+  // backend returns { ok, items }
   return Array.isArray(data) ? data : data.items ?? [];
 }
 
-export async function createOrder(payload: CreateOrderPayload): Promise<any> {
+export async function createOrder(
+  payload: CreateOrderPayload
+): Promise<any> {
   if (USE_MOCK) return { id: `mock_${Date.now()}`, ok: true };
 
   return jfetch<any>("/orders", {

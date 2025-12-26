@@ -8,7 +8,6 @@ const CURRENCY = "$";
 export default function StatsPage() {
   const { orders, ordersCountToday } = usePOS();
 
-  // ✅ NEW: products from backend
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState<string | null>(null);
@@ -50,39 +49,113 @@ export default function StatsPage() {
   }, [orders, ordersCountToday]);
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 p-8">
-      {/* HEADER */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Statistics</h1>
-        <p className="text-sm text-gray-500">
-          Demo stats for now (based on locally created orders)
-        </p>
+    <div className="relative h-full w-full bg-[#F3EDE3] text-stone-900 overflow-y-auto">
+      {/* subtle beige / emerald glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-52 -left-52 w-[620px] h-[620px] rounded-full bg-emerald-500/10 blur-[110px]" />
+        <div className="absolute -bottom-56 -right-56 w-[680px] h-[680px] rounded-full bg-lime-500/10 blur-[120px]" />
       </div>
 
-      {/* STATS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <StatCard
-          label="Total revenue"
-          value={formatMoney(stats.totalRevenue, CURRENCY)}
-        />
-        <StatCard
-          label="Total orders"
-          value={stats.totalOrders.toString()}
-        />
-        <StatCard
-          label="Today (backend count)"
-          value={stats.ordersCountToday.toString()}
-        />
-        <StatCard
-          label="Avg order"
-          value={formatMoney(stats.avgOrder, CURRENCY)}
-        />
+      <div className="relative p-8">
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold">Statistics</h1>
+          <p className="text-sm text-stone-600">
+            Live overview (orders + products)
+          </p>
+        </div>
+
+        {/* TOP STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            label="Total revenue"
+            value={formatMoney(stats.totalRevenue, CURRENCY)}
+          />
+          <StatCard
+            label="Total orders"
+            value={stats.totalOrders.toString()}
+          />
+          <StatCard
+            label="Today (backend)"
+            value={stats.ordersCountToday.toString()}
+          />
+          <StatCard
+            label="Avg order"
+            value={formatMoney(stats.avgOrder, CURRENCY)}
+          />
+        </div>
+
+        {/* PRODUCTS PANEL */}
+        <div className="bg-white/70 border border-emerald-900/15 rounded-2xl shadow-[0_18px_44px_rgba(0,0,0,0.08)] backdrop-blur">
+          <div className="p-5 border-b border-emerald-900/10">
+            <h2 className="text-lg font-semibold">Products</h2>
+            <p className="text-sm text-stone-600">
+              Live data from backend
+            </p>
+          </div>
+
+          <div className="p-5">
+            {productsLoading ? (
+              <div className="text-stone-500 text-sm">
+                Loading products…
+              </div>
+            ) : productsError ? (
+              <div className="text-rose-600 text-sm">
+                {productsError}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-stone-500 text-sm">
+                No products found.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {products.slice(0, 10).map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-xl border border-emerald-900/15 bg-white/60 px-4 py-3"
+                  >
+                    <div>
+                      <div className="font-semibold text-stone-900">
+                        {p.name}
+                      </div>
+                      <div className="text-xs text-stone-600">
+                        {p.category}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="font-bold text-stone-900">
+                        {formatMoney(p.price, CURRENCY)}
+                      </div>
+                      <div
+                        className={[
+                          "text-xs font-medium",
+                          p.isActive
+                            ? "text-emerald-700"
+                            : "text-stone-400",
+                        ].join(" ")}
+                      >
+                        {p.isActive ? "Active" : "Inactive"}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {products.length > 10 && (
+                  <div className="text-xs text-stone-600 pt-2">
+                    Showing first 10 products…
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/* --------- Small reusable card --------- */
+/* ---------- Reusable stat card ---------- */
 
 function StatCard({
   label,
@@ -92,68 +165,10 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-      <div className="text-sm text-gray-500 mb-1">{label}</div>
-      <div className="text-2xl font-semibold text-gray-900">
+    <div className="bg-white/70 border border-emerald-900/15 rounded-2xl p-6 backdrop-blur shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
+      <div className="text-sm text-stone-600 mb-1">{label}</div>
+      <div className="text-2xl font-semibold text-stone-900">
         {value}
-      </div>
-
-      {/* ✅ NEW: quick products wire-up (visual proof) */}
-      <div style={{ height: 16 }} />
-
-      <div className="statCard" style={{ padding: 14 }}>
-        <div className="statLabel">Products (live from backend)</div>
-
-        {productsLoading ? (
-          <div className="statValue" style={{ fontSize: 14, opacity: 0.8 }}>
-            Loading products...
-          </div>
-        ) : productsError ? (
-          <div className="statValue" style={{ fontSize: 14, color: "#d64b4b" }}>
-            {productsError}
-          </div>
-        ) : (
-          <>
-            <div className="statValue" style={{ fontSize: 22 }}>
-              {products.length}
-            </div>
-
-            <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-              {products.slice(0, 10).map((p) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 10,
-                    padding: "10px 12px",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    borderRadius: 12,
-                    background: "rgba(255,255,255,0.8)",
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div style={{ fontWeight: 800 }}>{p.name}</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>{p.category}</div>
-                  </div>
-
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 900 }}>{formatMoney(p.price, CURRENCY)}</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>
-                      Active: {p.isActive ? "Yes" : "No"}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {products.length > 10 && (
-              <div style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>
-                Showing first 10 products…
-              </div>
-            )}
-          </>
-        )}
       </div>
     </div>
   );

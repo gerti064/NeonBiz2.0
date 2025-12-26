@@ -20,7 +20,7 @@ export default function ProductGrid({
 }: {
   products: ProductLike[];
   loading: boolean;
-  onAdd: (productId: string) => void;
+  onAdd: (product: ProductLike) => void;
 }) {
   if (loading) {
     return (
@@ -58,7 +58,13 @@ export default function ProductGrid({
         return (
           <div
             key={p.id}
-            className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm hover:shadow transition relative"
+            onClick={() => !disabled && onAdd(p)}
+            className={[
+              "bg-white rounded-3xl border overflow-hidden shadow-sm transition relative cursor-pointer",
+              disabled
+                ? "border-stone-200 opacity-60 cursor-not-allowed"
+                : "border-stone-200 hover:shadow-md hover:scale-[1.01]",
+            ].join(" ")}
           >
             {/* Image */}
             <div className="h-36 bg-stone-100 overflow-hidden">
@@ -82,7 +88,7 @@ export default function ProductGrid({
                 {p.name}
               </div>
               <div className="text-xs text-stone-500">
-                {(p.description ?? "Freshly prepared").toString()}
+                {p.description ?? "Freshly prepared"}
               </div>
 
               <div className="mt-3 flex items-center justify-between">
@@ -92,7 +98,10 @@ export default function ProductGrid({
 
                 {/* Plus button */}
                 <button
-                  onClick={() => !disabled && onAdd(p.id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent card click
+                    if (!disabled) onAdd(p);
+                  }}
                   disabled={disabled}
                   className={[
                     "w-11 h-11 rounded-full flex items-center justify-center font-black text-lg transition",
@@ -100,8 +109,6 @@ export default function ProductGrid({
                       ? "bg-stone-200 text-stone-400 cursor-not-allowed"
                       : "bg-emerald-700 text-white hover:bg-emerald-800",
                   ].join(" ")}
-                  aria-label={`Add ${p.name}`}
-                  title={disabled ? "Not available" : "Add"}
                 >
                   +
                 </button>
