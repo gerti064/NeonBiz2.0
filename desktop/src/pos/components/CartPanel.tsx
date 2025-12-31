@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePOS } from "../context/POSContext";
 import { formatMoney } from "../utils";
 import TabsSidebar from "./TabsSidebar";
@@ -6,7 +7,35 @@ import TabsSidebar from "./TabsSidebar";
 const CURRENCY = "€";
 
 export default function CartPanel() {
-  const { cart, inc, dec, remove, total, paying, createNewOrder } = usePOS();
+  const navigate = useNavigate();
+
+  const {
+    cart,
+    inc,
+    dec,
+    remove,
+    total,
+    paying,
+    createNewOrder,
+    orders, // IMPORTANT: we need orders to detect when a new order is created
+  } = usePOS();
+
+  // Track redirect intent + previous orders length
+  const shouldRedirectRef = useRef(false);
+  const prevOrdersLenRef = useRef<number>(orders.length);
+
+  useEffect(() => {
+    const prevLen = prevOrdersLenRef.current;
+    const currentLen = orders.length;
+
+    // If we pressed Charge and orders increased -> go to /orders
+    if (shouldRedirectRef.current && currentLen > prevLen) {
+      shouldRedirectRef.current = false;
+      navigate("/orders");
+    }
+
+    prevOrdersLenRef.current = currentLen;
+  }, [orders.length, navigate]);
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white">
@@ -18,9 +47,8 @@ export default function CartPanel() {
         </div>
       </div>
 
-      {/* CONTENT SPLIT: Ticket (top) + Tabs (bottom) */}
       <div className="flex-1 min-h-0 flex flex-col">
-        {/* TICKET ITEMS (scroll) */}
+        {/* TICKET ITEMS */}
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
           {cart.length === 0 ? (
             <div className="text-stone-500 text-sm text-center mt-10">
@@ -84,7 +112,7 @@ export default function CartPanel() {
           )}
         </div>
 
-        {/* FOOTER (always visible) */}
+        {/* FOOTER */}
         <div className="border-t border-stone-200 px-5 py-4 space-y-3">
           <div className="flex justify-between font-semibold text-base">
             <span>Total</span>
@@ -96,14 +124,22 @@ export default function CartPanel() {
               className="bg-stone-200 hover:bg-stone-300 transition py-3 rounded-2xl font-semibold"
               disabled={!cart.length}
               onClick={() => {
-                // wire to pay-later tab logic if you want (optional)
+                // optional: save to tab logic
               }}
             >
               Save
             </button>
 
             <button
-              onClick={() => createNewOrder("cash")}
+              onClick={() => {
+                if (paying || cart.length === 0) return;
+
+                // mark that we want to redirect once the order is actually created
+                shouldRedirectRef.current = true;
+
+                // trigger order creation
+                createNewOrder("cash");
+              }}
               disabled={paying || cart.length === 0}
               className="
                 bg-emerald-600 text-white py-3 rounded-2xl font-semibold
@@ -111,14 +147,21 @@ export default function CartPanel() {
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
-              Charge
+              {paying ? "Creating..." : "Charge"}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/orders")}
+            className="w-full py-2 rounded-2xl text-sm font-semibold text-emerald-800 hover:bg-emerald-50 transition"
+          >
+            View Orders
+          </button>
         </div>
 
-        {/* TABS SECTION (below cart) */}
+        {/* TABS SECTION */}
         <div className="border-t border-stone-200 bg-stone-50">
-          {/* Make tabs area scroll if many tabs */}
           <div className="max-h-[320px] overflow-y-auto">
             <TabsSidebar />
           </div>

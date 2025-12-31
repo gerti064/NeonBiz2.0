@@ -16,6 +16,51 @@ const CATEGORIES: {
   { key: "snack", label: "Snack", badge: "Need restock", icon: "🍪" },
 ];
 
+/* ---------------- WEB IMAGE FALLBACKS ---------------- */
+
+const WEB_FALLBACK: Record<string, string> = {
+  espresso:
+    "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=1200&q=70",
+  cappuccino:
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=70",
+  latte:
+    "https://images.unsplash.com/photo-1523942839745-7848d6f0a8f8?auto=format&fit=crop&w=1200&q=70",
+  americano:
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=70",
+  coffee_generic:
+    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=70",
+  tea_generic:
+    "https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=1200&q=70",
+  snack_generic:
+    "https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=1200&q=70",
+};
+
+function pickWebImage(p: { name?: string; category?: string }) {
+  const name = (p.name ?? "").toLowerCase();
+  const category = (p.category ?? "").toLowerCase();
+
+  if (name.includes("espresso")) return WEB_FALLBACK.espresso;
+  if (name.includes("capp")) return WEB_FALLBACK.cappuccino;
+  if (name.includes("latte")) return WEB_FALLBACK.latte;
+  if (name.includes("amer")) return WEB_FALLBACK.americano;
+
+  if (category.includes("tea")) return WEB_FALLBACK.tea_generic;
+  if (category.includes("snack")) return WEB_FALLBACK.snack_generic;
+
+  return WEB_FALLBACK.coffee_generic;
+}
+
+function resolveImageUrl(p: any): string {
+  return (
+    p?.imageUrl ||
+    p?.image_url ||
+    p?.photoUrl ||
+    p?.photo_url ||
+    p?.image ||
+    pickWebImage({ name: p?.name, category: p?.category })
+  );
+}
+
 export default function ProductsPage() {
   const { addToCart } = usePOS();
 
@@ -24,7 +69,7 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<CategoryKey>("coffee");
 
-  /* ---------------- FETCH PRODUCTS (SAME AS STATSPAGE) ---------------- */
+  /* ---------------- FETCH PRODUCTS ---------------- */
 
   useEffect(() => {
     let alive = true;
@@ -37,11 +82,26 @@ export default function ProductsPage() {
         const items = await fetchProducts(true);
         if (!alive) return;
 
-        // normalize category for filtering
         setProducts(
-          items.map((p) => ({
+          items.map((p: any) => ({
             ...p,
-            category: p.category.toLowerCase() as CategoryKey,
+            id: String(p.id),
+            name: String(p.name ?? ""),
+            price: Number(p.price ?? 0),
+            category: String(p.category ?? "coffee").toLowerCase() as CategoryKey,
+
+            // allow both API styles
+            available:
+              typeof p.available === "boolean"
+                ? p.available
+                : typeof p.is_available === "boolean"
+                ? p.is_available
+                : true,
+
+            description:
+              p.description ?? p.desc ?? p.notes ?? undefined,
+
+            imageUrl: resolveImageUrl(p),
           }))
         );
       } catch (e: any) {
@@ -68,9 +128,7 @@ export default function ProductsPage() {
     };
 
     for (const p of products) {
-      if (p.category in map) {
-        map[p.category as CategoryKey]++;
-      }
+      if (p.category in map) map[p.category as CategoryKey]++;
     }
 
     return map;
@@ -82,6 +140,23 @@ export default function ProductsPage() {
     () => products.filter((p) => p.category === tab),
     [products, tab]
   );
+
+  /* ---------------- WIRE CART LOGIC HERE ----------------
+     ProductGrid will call this on "+" click.
+     We normalize again to guarantee addToCart receives what it expects.
+  -------------------------------------------------------- */
+
+  const handleAddToCart = (p: any) => {
+    addToCart({
+      id: String(p.id),
+      name: String(p.name ?? ""),
+      category: String(p.category ?? "coffee").toLowerCase(),
+      price: Number(p.price ?? 0),
+      imageUrl: p.imageUrl,
+      available: p.available,
+      description: p.description,
+    } as any);
+  };
 
   return (
     <div className="relative h-full w-full bg-[#F3EDE3] text-stone-900 overflow-y-auto">
@@ -179,7 +254,7 @@ export default function ProductsPage() {
               <ProductGrid
                 products={filtered}
                 loading={loading}
-                onAdd={addToCart}
+                onAdd={handleAddToCart}
               />
             )}
           </div>

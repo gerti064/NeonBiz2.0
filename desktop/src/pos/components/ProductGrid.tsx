@@ -55,25 +55,37 @@ export default function ProductGrid({
       {products.map((p) => {
         const disabled = p.available === false;
 
+        // normalize what we send to cart (prevents "undefined id/price" issues)
+        const safeProduct: ProductLike = {
+          id: String(p.id),
+          name: String(p.name ?? ""),
+          category: String(p.category ?? ""),
+          price: Number(p.price ?? 0),
+          imageUrl: p.imageUrl,
+          available: p.available,
+          description: p.description,
+        };
+
         return (
           <div
-            key={p.id}
-            onClick={() => !disabled && onAdd(p)}
+            key={safeProduct.id}
             className={[
-              "bg-white rounded-3xl border overflow-hidden shadow-sm transition relative cursor-pointer",
-              disabled
-                ? "border-stone-200 opacity-60 cursor-not-allowed"
-                : "border-stone-200 hover:shadow-md hover:scale-[1.01]",
+              "bg-white rounded-3xl border overflow-hidden shadow-sm transition relative",
+              disabled ? "border-stone-200 opacity-60" : "border-stone-200 hover:shadow-md",
             ].join(" ")}
           >
             {/* Image */}
             <div className="h-36 bg-stone-100 overflow-hidden">
-              {p.imageUrl ? (
+              {safeProduct.imageUrl ? (
                 <img
-                  src={p.imageUrl}
-                  alt={p.name}
+                  src={safeProduct.imageUrl}
+                  alt={safeProduct.name}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onError={(e) => {
+                    // if a web URL fails, avoid broken image icon
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-stone-400">
@@ -85,30 +97,31 @@ export default function ProductGrid({
             {/* Content */}
             <div className="p-4">
               <div className="font-semibold text-stone-900 truncate">
-                {p.name}
+                {safeProduct.name}
               </div>
               <div className="text-xs text-stone-500">
-                {p.description ?? "Freshly prepared"}
+                {safeProduct.description ?? "Freshly prepared"}
               </div>
 
               <div className="mt-3 flex items-center justify-between">
                 <div className="font-extrabold text-emerald-700">
-                  {formatMoney(p.price, CURRENCY)}
+                  {formatMoney(safeProduct.price, CURRENCY)}
                 </div>
 
-                {/* Plus button */}
+                {/* Add button ONLY (fixes double-add / accidental adds from card click) */}
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent card click
-                    if (!disabled) onAdd(p);
+                  type="button"
+                  onClick={() => {
+                    if (!disabled) onAdd(safeProduct);
                   }}
                   disabled={disabled}
                   className={[
                     "w-11 h-11 rounded-full flex items-center justify-center font-black text-lg transition",
                     disabled
                       ? "bg-stone-200 text-stone-400 cursor-not-allowed"
-                      : "bg-emerald-700 text-white hover:bg-emerald-800",
+                      : "bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95",
                   ].join(" ")}
+                  aria-label={`Add ${safeProduct.name} to cart`}
                 >
                   +
                 </button>

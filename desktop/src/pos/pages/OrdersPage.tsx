@@ -1,21 +1,20 @@
+// src/pages/OrdersPage.tsx  (ONLY FIX: currency consistent + keep as you had)
 import { usePOS } from "../context/POSContext";
 import { formatMoney } from "../utils";
 
-const CURRENCY = "$";
+const CURRENCY = "€";
 
 export default function OrdersPage() {
   const { orders, createNewOrder, paying, cart } = usePOS();
 
   return (
     <div className="relative h-full w-full bg-[#F3EDE3] text-stone-900">
-      {/* subtle beige glow (same as ProductsPage) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-52 -left-52 w-[620px] h-[620px] rounded-full bg-emerald-500/10 blur-[110px]" />
         <div className="absolute -bottom-56 -right-56 w-[680px] h-[680px] rounded-full bg-lime-500/10 blur-[120px]" />
       </div>
 
       <div className="relative h-full px-6 py-6 overflow-auto">
-        {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold">Orders</h1>
@@ -38,7 +37,6 @@ export default function OrdersPage() {
           </button>
         </div>
 
-        {/* CONTENT */}
         {orders.length === 0 ? (
           <div className="rounded-3xl border border-emerald-900/15 bg-white/70 backdrop-blur-xl p-6 text-stone-600 shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
             No orders yet.
@@ -50,18 +48,11 @@ export default function OrdersPage() {
                 key={o.id}
                 className="rounded-3xl border border-emerald-900/15 bg-white/70 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.08)] overflow-hidden"
               >
-                {/* TOP */}
                 <div className="flex items-start justify-between p-5 border-b border-emerald-900/10">
                   <div>
-                    <div className="text-lg font-semibold">
-                      {o.customerName}
-                    </div>
-
+                    <div className="text-lg font-semibold">{o.customerName}</div>
                     <div className="flex items-center gap-2 text-sm text-stone-600 mt-1">
-                      <span>
-                        {new Date(o.createdAt).toLocaleString()}
-                      </span>
-
+                      <span>{new Date(o.createdAt).toLocaleString()}</span>
                       <span
                         className={[
                           "px-3 py-1 rounded-full text-[11px] font-medium border",
@@ -80,13 +71,9 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {/* ITEMS */}
                 <div className="p-5 space-y-2">
                   {o.items.map((it, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between text-sm"
-                    >
+                    <div key={idx} className="flex justify-between text-sm">
                       <span className="text-stone-700">
                         {it.qty}× {it.name}
                       </span>
@@ -97,7 +84,6 @@ export default function OrdersPage() {
                   ))}
                 </div>
 
-                {/* TOTALS */}
                 <div className="p-5 border-t border-emerald-900/10 space-y-2 text-sm">
                   <div className="flex justify-between text-stone-600">
                     <span>Subtotal</span>
